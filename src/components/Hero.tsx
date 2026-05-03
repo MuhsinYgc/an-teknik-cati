@@ -1,70 +1,202 @@
 "use client";
-import { easeOut, motion } from "framer-motion";
-import { ArrowRight, Sparkles, Star } from "lucide-react";
+
+import { useEffect, useState } from "react";
+import {
+  AnimatePresence,
+  motion,
+  useReducedMotion,
+} from "framer-motion";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { siteData } from "@/data/siteData";
-
-const container = {
-    hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
-};
-
-const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: easeOut } },
-};
+import { EASE_LUX, txLux } from "@/lib/motionPresets";
+import { scrollToSection } from "@/lib/scrollTo";
 
 export default function Hero() {
-    return (
-        <section className="relative overflow-hidden">
-            <div className="pointer-events-none absolute inset-0 -z-10">
-                <div className="absolute -top-24 -left-24 h-80 w-80 rounded-full bg-primary/20 blur-3xl" />
-                <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-amber-500/10 blur-3xl" />
-            </div>
+  const slides = siteData.hero.slideshow;
+  const [active, setActive] = useState(0);
+  const reduce = useReducedMotion();
 
-            <div className="container px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-10 py-12 lg:py-24 items-center">
-                <motion.div variants={container} initial="hidden" animate="show" className="space-y-6 text-center lg:text-left">
-                    <motion.div variants={item} className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs mx-auto lg:mx-0">
-                        <Sparkles className="h-3.5 w-3.5" /> Üst düzey endüstriyel & mimari çatı çözümleri
-                    </motion.div>
+  useEffect(() => {
+    if (slides.length <= 1) return;
+    const id = window.setInterval(() => {
+      setActive((prev) => (prev + 1) % slides.length);
+    }, 5000);
+    return () => window.clearInterval(id);
+  }, [slides.length]);
 
-                    <motion.h1 variants={item} className="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tight text-balance">
-                        {siteData.hero.title.split("Mükemmel Zanaat")[0]}
-                        <span className="text-primary">Mükemmel Zanaat</span>
-                    </motion.h1>
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.11, delayChildren: 0.06 },
+    },
+  };
 
-                    <motion.p variants={item} className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto lg:mx-0">
-                        {siteData.hero.subtitle}
-                    </motion.p>
+  const item = {
+    hidden: reduce
+      ? { opacity: 0 }
+      : { opacity: 0, y: 28, x: -12, filter: "blur(6px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      x: 0,
+      filter: "blur(0px)",
+      transition: { duration: 0.82, ease: EASE_LUX },
+    },
+  };
 
-                    <motion.div variants={item} className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-                        <Button asChild size="lg" className="w-full sm:w-auto hover:scale-105 transition">
-                            <Link href="#contact">Hızlı Teklif Al <ArrowRight className="ml-2 h-4 w-4" /></Link>
-                        </Button>
-                        <Button asChild variant="outline" size="lg" className="w-full sm:w-auto hover:scale-105 transition">
-                            <Link href="#portfolio">Referanslara Göz At</Link>
-                        </Button>
-                    </motion.div>
+  return (
+    <section
+      id="anasayfa"
+      className="relative min-h-[78vh] overflow-hidden md:min-h-[88vh]"
+    >
+      <div className="absolute inset-0">
+        <AnimatePresence>
+          {slides.map((src, i) =>
+            i === active ? (
+              <motion.div
+                key={`${src}-${i}`}
+                initial={{ opacity: 0, scale: 1.04 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1.15, ease: EASE_LUX }}
+                className="absolute inset-0"
+              >
+                <Image
+                  src={src}
+                  alt="Çatı uygulaması"
+                  fill
+                  priority={i === 0}
+                  className="object-cover ken-burns-img"
+                  sizes="100vw"
+                />
+              </motion.div>
+            ) : null
+          )}
+        </AnimatePresence>
+      </div>
 
-                    <motion.div variants={item} className="flex flex-col sm:flex-row items-center gap-4 pt-4 justify-center lg:justify-start">
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            {[...Array(5)].map((_, i) => (<Star key={i} className="h-4 w-4 fill-current" />))}
-                            <span className="ml-2">{siteData.hero.highlights.customers}</span>
-                        </div>
-                        <Badge variant="secondary" className="text-xs">{siteData.hero.highlights.experience}</Badge>
-                    </motion.div>
-                </motion.div>
+      <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/25" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand/30 via-transparent to-transparent" />
 
-                <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }} transition={{ duration: 0.7 }}
-                    className="relative h-[260px] sm:h-[320px] md:h-[420px] w-full max-w-lg mx-auto lg:mx-0">
-                    <Image src={siteData.hero.image} alt="Çatı uygulaması" width={600} height={400}
-                        className="rounded-2xl object-cover shadow-2xl" priority />
-                </motion.div>
-            </div>
-        </section>
-    );
+      <div className="relative z-10 flex min-h-[78vh] flex-col justify-center px-4 pb-16 pt-24 sm:px-6 md:min-h-[88vh] lg:px-8">
+        <div className="container">
+          <motion.div
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="max-w-3xl text-white"
+          >
+            <motion.p
+              variants={item}
+              className="text-sm font-semibold uppercase tracking-[0.2em] text-white/80"
+            >
+              AN Teknik Çatı
+            </motion.p>
+            <motion.h1
+              variants={item}
+              className="mt-3 text-4xl font-black leading-[1.05] tracking-tight text-balance sm:text-5xl md:text-6xl"
+            >
+              {siteData.hero.titleLine1}
+              <span className="block text-brand-foreground drop-shadow-sm">
+                {siteData.hero.titleLine2}
+              </span>
+            </motion.h1>
+            <motion.p
+              variants={item}
+              className="mt-5 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg"
+            >
+              {siteData.hero.subtitle}
+            </motion.p>
+
+            <motion.div variants={item} className="mt-8 flex flex-wrap gap-3">
+              <Button
+                asChild
+                size="lg"
+                className="bg-brand px-8 text-base font-semibold text-brand-foreground shadow-lg hover:bg-brand/90"
+              >
+                <Link
+                  href="#iletisim"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    scrollToSection("iletisim");
+                  }}
+                >
+                  Teklif Al
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-white/40 bg-white/10 text-white backdrop-blur hover:bg-white/20"
+              >
+                <Link
+                  href="#hizmetler"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    scrollToSection("hizmetler");
+                  }}
+                >
+                  Hizmetlerimiz
+                </Link>
+              </Button>
+            </motion.div>
+
+            <motion.div
+              variants={item}
+              className="mt-10 flex flex-wrap gap-2"
+            >
+              {siteData.hero.quickTags.map((tag, i) => (
+                <motion.span
+                  key={tag}
+                  initial={{ opacity: 0, y: 16, scale: 0.92 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={
+                    reduce
+                      ? { duration: 0.15, delay: 0.2 + i * 0.03 }
+                      : {
+                          delay: 0.5 + i * 0.055,
+                          type: "spring",
+                          stiffness: 380,
+                          damping: 22,
+                        }
+                  }
+                  className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/95 backdrop-blur-md transition hover:border-brand/60 hover:bg-brand/20"
+                >
+                  {tag}
+                </motion.span>
+              ))}
+            </motion.div>
+          </motion.div>
+        </div>
+      </div>
+
+      <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+        {slides.map((_, i) => (
+          <button
+            key={`dot-${i}`}
+            type="button"
+            aria-label={`Slayt ${i + 1}`}
+            onClick={() => setActive(i)}
+            className={`h-1.5 rounded-full transition-all ${
+              i === active ? "w-8 bg-brand" : "w-2.5 bg-white/40 hover:bg-white/70"
+            }`}
+          />
+        ))}
+      </div>
+
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.75, ...txLux(0, 0.55) }}
+      />
+    </section>
+  );
 }

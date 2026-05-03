@@ -37,6 +37,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -45,6 +47,9 @@
 
 :root {
   --radius: 0.625rem;
+  /* Çatı teması — kiremit / terracotta (turuncudan daha kırmızımsı, toprak tonu) */
+  --brand: oklch(0.535 0.118 30);
+  --brand-foreground: oklch(0.985 0.012 88);
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
   --card: oklch(1 0 0);
@@ -63,7 +68,7 @@
   --border: oklch(0.929 0.013 255.508);
   --input: oklch(0.929 0.013 255.508);
   --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-1: oklch(0.56 0.14 30);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
@@ -119,4 +124,126 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@keyframes partner-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.partner-scroll {
+  animation: partner-scroll 32s linear infinite;
+}
+
+/* ==== Hero ken-burns slayt arka planı ==== */
+@keyframes ken-burns {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.18);
+  }
+}
+
+.ken-burns-img {
+  animation: ken-burns 12s ease-out forwards;
+  will-change: transform;
+}
+
+/* ==== fadeIn yardımcı klasörü (Elementor benzeri) ==== */
+@keyframes fade-in-left {
+  from {
+    opacity: 0;
+    transform: translate3d(-40px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes fade-in-right {
+  from {
+    opacity: 0;
+    transform: translate3d(40px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes fade-in-down {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -28px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.fade-in-left {
+  animation: fade-in-left 0.7s ease-out both;
+}
+.fade-in-right {
+  animation: fade-in-right 0.7s ease-out both;
+}
+.fade-in-up {
+  animation: fade-in-up 0.7s ease-out both;
+}
+.fade-in-down {
+  animation: fade-in-down 0.7s ease-out both;
+}
+
+/* ==== Hover-reveal kart (transform: translateY(420px) → 0) ==== */
+.hover-reveal-card {
+  position: relative;
+  overflow: hidden;
+}
+.hover-reveal-card .reveal-panel {
+  transform: translateY(70%);
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+.hover-reveal-card:hover .reveal-panel,
+.hover-reveal-card:focus-within .reveal-panel {
+  transform: translateY(0);
+}
+@media (max-width: 768px) {
+  /* Telefonda tüm metin görünsün; hover beklenmesin */
+  .hover-reveal-card .reveal-panel {
+    transform: translateY(0);
+  }
+}
+
+/* Tailwind `container`: max-width var; yatay ortalamayı garanti et (ana sayfa sola yapışmasın) */
+.container {
+  margin-inline: auto;
+  width: 100%;
+}
+
+/* Leaflet özel pin — divIcon için varsayılan kutu görünümünü kaldır */
+.office-leaflet-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+.office-leaflet-marker-inner {
+  display: flex;
+  justify-content: center;
+  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.55));
 }
